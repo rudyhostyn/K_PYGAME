@@ -1,4 +1,4 @@
-# PRimar programa en pygame
+# Primer programa en pygame
 
 Crearemos una pantalla negra
 

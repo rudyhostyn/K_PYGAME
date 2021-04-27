@@ -1,74 +1,77 @@
 import pygame as pg
 import sys
-from  random import randint
+from random import randint
 
 def rebotaX(x):
-    if x <=0 or x>= ANCHO:
+    if x <=0 or x >=ANCHO:
         return -1
+
     return 1
 
-def rebotaY(x):
-    if x <=0 or x>= ALTO:
+def rebotaY(y):
+    if y <=0 or y >=ALTO:
         return -1
+
     return 1
+
 
 ROJO = (255, 0, 0)
 AZUL = (0, 0, 255)
-VERDE = (0, 255, 0)
-NEGRO = (0, 0, 0)
+NEGRO = (0,0,0)
 ANCHO = 800
 ALTO = 600
 
 pg.init()
+pantalla = pg.display.set_mode((ANCHO, ALTO))
 
-pantalla = pg.display.set_mode((800,600))
-
-# Bola 1
 game_over = False
 x = ANCHO // 2
 y = ALTO // 2
-vx = -5
-vy = -5
-
-# Bola 1
-x2 = randint(0, ANCHO)
-y2 = randint(0, ALTO)
-vx2 = randint(5,15)
-vy2 = randint(5,15)
-
-
-
-radio = 10
-vradio = +0.3
-
+vx = -13
+vy = -13
 reloj = pg.time.Clock()
 
+bolas = []
+for _ in range(20):
+    bola = {'x': randint(0, ANCHO),
+            'y': randint(0, ALTO),
+            'vx': randint(5, 10),
+            'vy': randint(5, 10),
+            'color': (randint(0, 255), randint(0,255), randint(0,255))
+    }
+    bolas.append(bola)
+
+game_over = False
 while not game_over:
-        reloj.tick(60)
-        #gestion de eventos
-        for evento in pg.event.get():
-            if evento.type == pg.QUIT:
-                game_over = True
-        #pg.time.delay(10)
-        x += vx
-        y += vy
-        x2 += vx2
-        y2 += vy2
+    v = reloj.tick(60)
+    print(v)
+    #Gestion de eventos
+    for evento in pg.event.get():
+        if evento.type == pg.QUIT:
+            game_over = True
 
-        vy *=rebotaY(y)
-        vx *=rebotaX(x)
+    # Modificación de estado
+    x += vx
+    y += vy
+    for bola in bolas:
+        bola['x'] += bola['vx']
+        bola['y'] += bola['vy']
 
-        vy2 *=rebotaY(y2)
-        vx2 *=rebotaX(x2)
+        bola['vy'] *= rebotaY(bola['y'])
+        bola['vx'] *= rebotaX(bola['x'])
 
-        radio += vradio
+    if y <= 0 or y>= ALTO:
+        vy = -vy
+    
+    if x <= 0 or x >= ANCHO:
+        vx = -vx
 
-                                  
-        pantalla.fill(NEGRO)
-        pg.draw.circle(pantalla, ROJO, (x, y), radio)
-        pg.draw.circle(pantalla, VERDE, (x2, y2), radio) 
-       
-        pg.display.flip()
+    # Gestión de la pantalla
+    pantalla.fill(NEGRO)
+    pg.draw.circle(pantalla, ROJO, (x, y), 10)
+    for bola in bolas:
+        pg.draw.circle(pantalla, bola['color'], (bola['x'], bola['y']), 10)
 
-pg.quit()
-sys.exit()
+
+    pg.display.flip()
+

@@ -8,17 +8,17 @@ NEGRO = (0,0,0)
 ANCHO = 1200
 ALTO = 750
 RADIO = 10
-
-def rebota(x, str):
+'''
+def rebota(str):
     if str == ANCHO:
-        if x <= 0 + RADIO or x >= str - RADIO:
+        if bola.x <= 0 + RADIO or bola.x >= str - RADIO:
             return -1
         return 1
     elif str == ALTO:
-        if x <= 0 + RADIO or x >= str - RADIO:
+        if bola.x <= 0 + RADIO or bola.x >= str - RADIO:
             return -1
         return 1
-
+'''
 def sig():
     st1 = randint(1,2)
     if st1 == 1:
@@ -30,15 +30,29 @@ pantalla = pg.display.set_mode((ANCHO, ALTO))
 reloj = pg.time.Clock()
 
 class Bola():
-    def __init__(self, x, y, vx, vy, color):
+    def __init__(self, x, y, vx=5, vy=5, color=(255, 255, 255), radio=10):
         self.x = x
         self.y = y
         self.vx = vx
         self.vy = vy
         self.color = color
+        self.radio = radio
 
- 
-bolas = []
+    def actualizar(self):
+
+        bola.x += bola.vx
+        bola.y += bola.vy
+        
+        if self.y <=0 or self.y >= ALTO:
+            self.vy = -self.vy
+
+        if self.x <=0 or self.x >= ANCHO:
+            self.vx = -self.vx
+    
+    def dibujar(self, lienzo):
+        pg.draw.circle(lienzo, self.color, (self.x, self.y), self.radio)
+            
+bolas = []   
 
 for _ in range(1):
     bola = Bola(randint(0, ANCHO),
@@ -59,18 +73,13 @@ while not game_over:
             game_over = True
 
     # Modificación de estado
-    for bola in bolas:
-
-        bola.x += bola.vx
-        bola.y += bola.vy
-                        
-        bola.vy *= rebota(bola.y, ALTO)  # bola.vy = (-1 ó 1)*bola.vy
-        bola.vx *= rebota(bola.x, ANCHO)
+    for bola in bolas: 
+        bola.actualizar()
 
     # Gestión de la pantalla
     pantalla.fill(NEGRO)
     for bola in bolas:
-        pg.draw.circle(pantalla, bola.color, (bola.x, bola.y), RADIO)
+        bola.dibujar(pantalla)
 
 
     pg.display.flip()

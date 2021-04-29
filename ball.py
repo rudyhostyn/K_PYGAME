@@ -1,24 +1,29 @@
 import pygame as pg
 import sys
 from random import randint
-
-def rebotaX(x):
-    if x <=0 or x >=ANCHO:
-        return -1
-
-    return 1
-
-def rebotaY(y):
-    if y <=0 or y >=ALTO:
-        return -1
-
-    return 1
-
+import random
 
 
 NEGRO = (0,0,0)
-ANCHO = 800
-ALTO = 600
+ANCHO = 1200
+ALTO = 750
+RADIO = 10
+
+def rebota(x, str):
+    if str == ANCHO:
+        if x <= 0 + RADIO or x >= str - RADIO:
+            return -1
+        return 1
+    elif str == ALTO:
+        if x <= 0 + RADIO or x >= str - RADIO:
+            return -1
+        return 1
+
+def sig():
+    st1 = randint(1,2)
+    if st1 == 1:
+        return -1
+    return 1
 
 pg.init()
 pantalla = pg.display.set_mode((ANCHO, ALTO))
@@ -34,11 +39,12 @@ class Bola():
 
  
 bolas = []
-for _ in range(10):
+
+for _ in range(1):
     bola = Bola(randint(0, ANCHO),
             randint(0, ALTO),
-            randint(5, 10),
-            randint(5, 10),
+            sig()*randint(5, 10),
+            sig()*randint(5, 10),
             (randint(0, 255), randint(0,255), randint(0,255)))
     
     bolas.append(bola)
@@ -46,7 +52,7 @@ for _ in range(10):
 game_over = False
 while not game_over:
     v = reloj.tick(60)
-    
+   
     #Gestion de eventos
     for evento in pg.event.get():
         if evento.type == pg.QUIT:
@@ -54,16 +60,17 @@ while not game_over:
 
     # Modificación de estado
     for bola in bolas:
+
         bola.x += bola.vx
         bola.y += bola.vy
-
-        bola.vy *= rebotaY(bola.y)
-        bola.vx *= rebotaX(bola.x)
+                        
+        bola.vy *= rebota(bola.y, ALTO)  # bola.vy = (-1 ó 1)*bola.vy
+        bola.vx *= rebota(bola.x, ANCHO)
 
     # Gestión de la pantalla
     pantalla.fill(NEGRO)
     for bola in bolas:
-        pg.draw.circle(pantalla, bola.color, (bola.x, bola.y), 10)
+        pg.draw.circle(pantalla, bola.color, (bola.x, bola.y), RADIO)
 
 
     pg.display.flip()

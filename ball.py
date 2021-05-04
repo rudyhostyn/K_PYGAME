@@ -1,166 +1,117 @@
 import pygame as pg
 import sys
 from random import randint, choice
-import random
-
-WHITE = (255,255,255)
-NEGRO = (0,0,0)
+ROJO = (255, 0, 0)
+AZUL = (0, 0, 255)
+VERDE = (0, 255, 0)
+NEGRO = (0, 0, 0)
 ANCHO = 800
 ALTO = 600
-RADIO = 10
-
 pg.init()
 pantalla = pg.display.set_mode((ANCHO, ALTO))
 reloj = pg.time.Clock()
-
-
 class Bola():
-   
-    def __init__(self, x, y, vx=5, vy=5, color=(255, 255, 255), radio=7):
+    def __init__(self, x, y, vx=5, vy=5, color= (255, 255, 255), radio=10):
         self.x = x
         self.y = y
         self.vx = vx
         self.vy = vy
         self.color = color
-        self.radio = radio
         self.anchura = radio*2
         self.altura = radio*2
-
     def actualizar(self):
-
-        bola.x += bola.vx
-        bola.y += bola.vy
-        
+        self.x += self.vx
+        self.y += self.vy
         if self.y <=0:
             self.vy = -self.vy
-
-        if self.x <=0 or self.x >= ANCHO:
+        if self.x <=0 or self.x >=ANCHO:
             self.vx = -self.vx
-
-        if self.y >= ALTO:
-            pg.time.delay(2000)
+        if self.y >=ALTO:
             self.x = ANCHO // 2
-            self.y = ALTO // 10
-            self.vx = randint(5, 10)*choice([-1,1])
-            self.vy = randint(5, 10)*choice([-1,1])
-                       
+            self.y = ALTO // 2
+            self.vx = randint(5,10)*choice([-1, 1])
+            self.vy = randint(5,10)*choice([-1, 1])
             return True
         return False
-    
     def dibujar(self, lienzo):
-        pg.draw.circle(lienzo, self.color, (self.x, self.y), self.radio)
-    
+        pg.draw.circle(lienzo, self.color, (self.x, self.y), self.anchura//2)
     def comprueba_colision(self, objeto):
-        choqueX = self.x >= objeto.x and self.x <= objeto.x + objeto.anchura or \
-            self.x+self.anchura >= objeto.x and self.x+self.anchura <= objeto.x + objeto.anchura
-
-        choqueY = self.y >= objeto.y and self.y <= objeto.y + objeto.altura or \
-            self.y+self.altura >= objeto.y and self.y+self.altura  <= objeto.y + objeto.altura
+        '''
+        if self.x >= objeto.x and self.x <= objeto.x+objeto.anchura or \
+           self.x+self.anchura >= objeto.x and self.x+self.anchura <= objeto.x + objeto.anchura:
+            choqueX = True
+        else:
+            choqueX = False
+        '''
+        choqueX = self.x >= objeto.x and self.x <= objeto.x+objeto.anchura or \
+           self.x+self.anchura >= objeto.x and self.x+self.anchura <= objeto.x + objeto.anchura
+        choqueY = self.y >= objeto.y and self.y <= objeto.y+objeto.altura or \
+           self.y+self.altura >= objeto.y and self.y+self.altura <= objeto.y + objeto.altura
         if choqueX and choqueY:
             self.vy *= -1
-    
-    def score(self, objeto):
-        choqueX = self.x >= objeto.x and self.x <= objeto.x + objeto.anchura or \
-            self.x+self.anchura >= objeto.x and self.x+self.anchura <= objeto.x + objeto.anchura
-
-        choqueY = self.y >= objeto.y and self.y <= objeto.y + objeto.altura or \
-            self.y+self.altura >= objeto.y and self.y+self.altura  <= objeto.y + objeto.altura
-        if choqueX and choqueY:    
             return True
-           
-        
-            
-        
-vidas = 3
-marcadorcero = ""
-score = 0
-
-
-bola = Bola(randint(0, ANCHO),
-            randint(0, ALTO),
-            randint(5, 10)*choice([-1,1]),
-            randint(5, 10)*choice([-1,1]),
-            #(randint(0, 255), randint(0,255), randint(0,255)))
-            (255, 255, 255))
-
+        return False
 class Raqueta():
-    def __init__(self, X=0, Y=0):
-        self.altura = 25
+    def __init__(self, x=0, y=0):
+        self.altura = 10
         self.anchura = 100
-        self.color = (255,255,255)
+        self.color = (255, 255, 255)
         self.x = (ANCHO - self.anchura) // 2
         self.y = ALTO - self.altura - 15
         self.vy = 0
-        self.vx = 20
-
+        self.vx = 13
     def dibujar(self, lienzo):
-        rect = pg.Rect(self.x , self.y, self.anchura, self.altura)
+        rect = pg.Rect(self.x, self.y, self.anchura, self.altura)
         pg.draw.rect(lienzo, self.color, rect)
-
     def actualizar(self):
-        teclas_pulsadas = pg.key.get_pressed() # se mueve mientras esté apretado
+        teclas_pulsadas = pg.key.get_pressed() 
         if teclas_pulsadas[pg.K_LEFT] and self.x > 0:
             self.x -= self.vx
         if teclas_pulsadas[pg.K_RIGHT] and self.x < ANCHO - self.anchura:
             self.x += self.vx
+vidas = 3
+puntuacion = 0
+bola = Bola(randint(0, ANCHO),
+            randint(0, ALTO),
+            randint(5, 10)*choice([-1, 1]),
+            randint(5, 10)*choice([-1, 1]),
+            AZUL)
 raqueta = Raqueta()
-
-class Marcador():
-    def __init__(self, surface, text, size, x, y):
-        self.surface = surface
-        self.text = text
-        self.size = size
-        self.x = x
-        self.y = y
-
-    def dibuja_marcador(self, surface, text, size, x, y):
-        font = pg.font.SysFont("arial", size)
-        text_surface = font.render(text, True, WHITE)
-        text_rect = text_surface.get_rect()
-        text_rect = (x,y)
-        surface.blit(text_surface, text_rect)
-        
-
-marcador1 = Marcador(pantalla, str(vidas), 35, ANCHO // 10,  ALTO // 10)
-marcador2 = Marcador(pantalla, str(marcadorcero), 35, ANCHO // 2,  ALTO // 2)
-marcador3 = Marcador(pantalla, str(score), 35, ANCHO - (ANCHO // 10),  ALTO // 10)
-
+txtGameOver = pg.font.SysFont("Arial", 35)
+txtPuntuacion = pg.font.SysFont("Courier", 28)
+pierdebola = False
 game_over = False
 while not game_over and vidas > 0:
-    v = reloj.tick(40)
+    v = reloj.tick(60)
+    if pierdebola:
+        pg.time.delay(500)
     #Gestion de eventos
     for evento in pg.event.get():
         if evento.type == pg.QUIT:
             game_over = True
- 
-
     # Modificación de estado
-    pierdebola = bola.actualizar()
-    if pierdebola:
-            vidas -= 1
-    
-    if vidas == 0:
-        reloj.tick(1)
-        marcadorcero = "Game Over"
-    
-    marcadorpuntos = bola.score(raqueta)
-    if marcadorpuntos:
-            score += 10
-
-    
-    # Gestión de la pantalla
-    pantalla.fill(NEGRO)
-    bola.dibujar(pantalla)
-    raqueta.dibujar(pantalla)
     raqueta.actualizar()
-    bola.comprueba_colision(raqueta)
-    #marcador
-    marcador1.dibuja_marcador(pantalla, str(vidas), 35, ANCHO // 10,  ALTO // 10)
-    marcador2.dibuja_marcador(pantalla, str(marcadorcero), 35, ANCHO // 2,  ALTO // 2)
-    marcador3.dibuja_marcador(pantalla, str(score), 35, ANCHO - (ANCHO // 10),  ALTO // 10)
-    
-    
-
-
+    pierdebola = bola.actualizar()
+    pantalla.fill(NEGRO)
+    if pierdebola:
+        vidas -= 1
+        if vidas == 0:
+            texto = txtGameOver.render("GAME_OVER", True, (0, 255, 255))
+            pantalla.blit(texto, (400, 300))
+        else:
+            bola.x = 400
+            bola.y = 300
+            bola.dibujar(pantalla)
+            raqueta.dibujar(pantalla)
+    else:
+        if bola.comprueba_colision(raqueta):
+            puntuacion += 5
+        # Gestión de la pantalla
+        texto = txtPuntuacion.render(str(puntuacion), True, (255,255,0))
+        pantalla.blit(texto, (20, 20))
+        bola.dibujar(pantalla)
+        raqueta.dibujar(pantalla)
     pg.display.flip()
-
+pg.time.delay(1000)
+pg.quit()
+sys.exit()
